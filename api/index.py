@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from .utils.tools import get_current_weather
 
 
-load_dotenv()
+load_dotenv(".env.local")
 
 app = FastAPI()
 

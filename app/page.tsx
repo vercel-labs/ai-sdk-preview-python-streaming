@@ -8,10 +8,10 @@ const examples = [
     title: "useChat",
     link: "/chat",
   },
-  {
-    title: "useChat with tools",
-    link: "/chat-tools",
-  },
+  // {
+  //   title: "useChat with tools",
+  //   link: "/chat-tools",
+  // },
   {
     title: "useChat with attachments",
     link: "/chat-attachments",
