@@ -1,10 +1,7 @@
 import { NextFetchEvent, NextRequest, NextResponse } from "next/server";
 import { track } from "@vercel/analytics/server";
 
-// You can get this endpoint name from the application details on the Kasada Portal.
-const kasadaAPIHostname = "vercel-endpoint.kasadapolyform.io";
-const kasadaAPIVersion = "2023-01-13-preview";
-const kasadaAPIURL = `https://${kasadaAPIHostname}/149e9513-01fa-4fb0-aad4-566afd725d1b/2d206a39-8ed7-437e-a3be-862e0f06eea3/api/${kasadaAPIVersion}/classification`;
+const kasadaAPIURL = `https://vercel-classification-api.kasadapolyform.io`;
 
 export interface APIRequest {
   // valid IPv4 orIPv6 address of the original client making the request
@@ -52,7 +49,7 @@ async function getKasadaMetadata(request: NextRequest): Promise<{
 
   const headers = new Headers(request.headers);
   headers.delete("x-forwarded-host");
-  headers.set("Host", process.env.KASADA_HEADER_HOST || "");
+  headers.set("Host", "ai-sdk-examples-next-fastapi.vercel.dev");
 
   const headersArray = [...headers.entries()].map(([key, value]) => ({
     key,

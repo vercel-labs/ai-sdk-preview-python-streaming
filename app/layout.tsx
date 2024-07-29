@@ -32,8 +32,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <KasadaClient />
       <body className={GeistSans.className}>
+        <KasadaClient />
         <Link href="/">
           <div className="border-b py-3 px-2 flex flex-row gap-2">
             <LogoNext />
