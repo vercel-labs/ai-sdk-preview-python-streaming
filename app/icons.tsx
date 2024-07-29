@@ -23,8 +23,8 @@ export const LogoPython = () => (
         y2="7.59598"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="#5A9FD4"></stop>
-        <stop offset="1" stop-color="#306998"></stop>
+        <stop stopColor="#5A9FD4"></stop>
+        <stop offset="1" stopColor="#306998"></stop>
       </linearGradient>
       <linearGradient
         id="paint1_linear_872_3163"
@@ -34,8 +34,8 @@ export const LogoPython = () => (
         y2="9.42956"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="#FFD43B"></stop>
-        <stop offset="1" stop-color="#FFE873"></stop>
+        <stop stopColor="#FFD43B"></stop>
+        <stop offset="1" stopColor="#FFE873"></stop>
       </linearGradient>
     </defs>
   </svg>
@@ -49,7 +49,7 @@ export const LogoNext = () => (
     width={20}
     style={{ color: "currentcolor" }}
   >
-    <g clip-path="url(#clip0_53_108)">
+    <g clipPath="url(#clip0_53_108)">
       <circle
         cx="8"
         cy="8"
@@ -82,10 +82,10 @@ export const LogoNext = () => (
         y2="11"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="white"></stop>
-        <stop offset="0.609375" stop-color="white" stop-opacity="0.57"></stop>
-        <stop offset="0.796875" stop-color="white" stop-opacity="0"></stop>
-        <stop offset="1" stop-color="white" stop-opacity="0"></stop>
+        <stop stopColor="white"></stop>
+        <stop offset="0.609375" stopColor="white" stopOpacity="0.57"></stop>
+        <stop offset="0.796875" stopColor="white" stopOpacity="0"></stop>
+        <stop offset="1" stopColor="white" stopOpacity="0"></stop>
       </linearGradient>
       <linearGradient
         id="paint1_linear_53_1080o22379mo"
@@ -95,8 +95,8 @@ export const LogoNext = () => (
         y2="13.3992"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="white"></stop>
-        <stop offset="1" stop-color="white" stop-opacity="0"></stop>
+        <stop stopColor="white"></stop>
+        <stop offset="1" stopColor="white" stopOpacity="0"></stop>
       </linearGradient>
       <clipPath id="clip0_53_108">
         <rect width="16" height="16" fill="red"></rect>

@@ -3,6 +3,7 @@ import { LogoNext, LogoPython } from "./icons";
 import Link from "next/link";
 import { GeistSans } from "geist/font/sans";
 import { KasadaClient } from "@/utils/kasada/kasada-client";
+import { Toaster } from "sonner";
 
 export const metadata = {
   title: "Vercel AI SDK and FastAPI Examples",
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={GeistSans.className}>
+        <Toaster position="top-center" richColors />
         <KasadaClient />
         <Link href="/">
           <div className="border-b py-3 px-2 flex flex-row gap-2">
