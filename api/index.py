@@ -1,4 +1,5 @@
 import json
+import asyncio
 import os
 from fastapi import FastAPI
 from openai import OpenAI
@@ -31,6 +32,7 @@ available_tools = {
 async def fake_video_streamer():
     for i in range(50):
         yield b"some fake video bytes"
+        await asyncio.sleep(1)
 
 
 @app.post("/api/chat")
