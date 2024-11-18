@@ -124,12 +124,16 @@ def stream_text(messages: List[ClientMessage], protocol: str = 'data'):
                     completion=completion_tokens
                 )
 
+async def fake_video_streamer():
+    for i in range(10):
+        yield b"some fake video bytes"
 
 @app.post("/api/chat")
 async def handle_chat_data(request: Request, protocol: str = Query('data')):
-    messages = request.messages
-    openai_messages = convert_to_openai_messages(messages)
+    # messages = request.messages
+    # openai_messages = convert_to_openai_messages(messages)
 
-    response = StreamingResponse(stream_text(openai_messages, protocol))
+    # response = StreamingResponse(stream_text(openai_messages, protocol))
+    response = StreamingResponse(fake_video_streamer())
     response.headers['x-vercel-ai-data-stream'] = 'v1'
     return response
