@@ -6,11 +6,10 @@ import { toast } from "sonner";
 export default function Page() {
   const { messages, input, handleSubmit, handleInputChange, isLoading } =
     useChat({
-      streamMode: "text",
       onError: (error) => {
         if (error.message.includes("Too many requests")) {
           toast.error(
-            "You are sending too many messages. Please try again later."
+            "You are sending too many messages. Please try again later.",
           );
         }
       },
