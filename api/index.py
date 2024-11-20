@@ -1,6 +1,7 @@
 import os
 import json
 from typing import List
+from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query
@@ -28,7 +29,7 @@ available_tools = {
 }
 
 
-def stream_text(messages: List[ClientMessage], protocol: str = 'data'):
+def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'data'):
     stream = client.chat.completions.create(
         messages=messages,
         model="gpt-4o",
@@ -37,19 +38,20 @@ def stream_text(messages: List[ClientMessage], protocol: str = 'data'):
             "type": "function",
             "function": {
                 "name": "get_current_weather",
-                "description": "Get the current weather in a given location",
+                "description": "Get the current weather at a location",
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "location": {
-                            "type": "string",
-                            "description": "The city and state, e.g. San Francisco, CA",
+                        "latitude": {
+                            "type": "number",
+                            "description": "The latitude of the location",
                         },
-                        "unit": {
-                            "type": "string",
-                            "enum": ["celsius", "fahrenheit"]},
+                        "longitude": {
+                            "type": "number",
+                            "description": "The longitude of the location",
+                        },
                     },
-                    "required": ["location", "unit"],
+                    "required": ["latitude", "longitude"],
                 },
             },
         }]

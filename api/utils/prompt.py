@@ -11,7 +11,7 @@ class ClientMessage(BaseModel):
     experimental_attachments: Optional[List[ClientAttachment]] = None
 
 
-def convert_to_openai_messages(messages: List[ClientMessage]):
+def convert_to_openai_messages(messages: List[ClientMessage]) -> List[ChatCompletionMessageParam]:
     openai_messages = []
 
     for message in messages:
