@@ -1,3 +1,4 @@
+from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel
 import base64
 from typing import List, Optional

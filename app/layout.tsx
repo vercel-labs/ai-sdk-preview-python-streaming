@@ -1,18 +1,19 @@
 import "./globals.css";
-import { LogoNext, LogoPython } from "./icons";
-import Link from "next/link";
 import { GeistSans } from "geist/font/sans";
 import { KasadaClient } from "@/utils/kasada/kasada-client";
 import { Toaster } from "sonner";
+import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/components/theme-provider";
+import { Navbar } from "@/components/navbar";
 
 export const metadata = {
-  title: "Vercel AI SDK and FastAPI Examples",
+  title: "Vercel AI SDK and FastAPI Example",
   description:
-    "Examples of using Vercel AI SDK in a Next.js application, powered by FastAPI.",
+    "Example of using Vercel AI SDK in a Next.js application, powered by FastAPI.",
   openGraph: {
     images: [
       {
-        url: "/og?title=Vercel AI SDK and FastAPI Examples",
+        url: "/og?title=Vercel AI SDK and FastAPI Example",
       },
     ],
   },
@@ -20,7 +21,7 @@ export const metadata = {
     card: "summary_large_image",
     images: [
       {
-        url: "/og?title=Vercel AI SDK and FastAPI Examples",
+        url: "/og?title=Vercel AI SDK and FastAPI Example",
       },
     ],
   },
@@ -33,16 +34,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={GeistSans.className}>
+      <head></head>
+      <body className={cn(GeistSans.className, "antialiased dark")}>
         <Toaster position="top-center" richColors />
         <KasadaClient />
-        <Link href="/">
-          <div className="border-b py-3 px-2 flex flex-row gap-2">
-            <LogoNext />
-            <div className="text-sm text-zinc-500">+</div>
-            <LogoPython />
-          </div>
-        </Link>
+        <Navbar />
         {children}
       </body>
     </html>
