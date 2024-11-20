@@ -3,7 +3,6 @@ import { GeistSans } from "geist/font/sans";
 import { KasadaClient } from "@/utils/kasada/kasada-client";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
-import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/navbar";
 
 export const metadata = {
