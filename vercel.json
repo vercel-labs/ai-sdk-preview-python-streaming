@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/index.py": {
-      "excludeFiles": "(.next|node_modules)/**"
+      "excludeFiles": "{.next,node_modules}/**"
     }
   }
 }
