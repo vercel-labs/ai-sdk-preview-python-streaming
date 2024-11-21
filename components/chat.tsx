@@ -31,8 +31,6 @@ export function Chat() {
     },
   });
 
-  console.log(messages);
-
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
 
