@@ -10,7 +10,7 @@ async function handler(request: Request) {
   url.searchParams.delete("restpath");
 
   const headers = new Headers(request.headers);
-  headers.set("X-Forwarded-Host", "ai-sdk-examples-next-fastapi.vercel.dev");
+  headers.set("X-Forwarded-Host", "ai-sdk-preview-python-streaming.vercel.app");
   headers.delete("host");
   const r = await fetch(url.toString(), {
     method: request.method,

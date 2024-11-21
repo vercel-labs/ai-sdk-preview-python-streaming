@@ -52,7 +52,7 @@ async function getKasadaMetadata(request: NextRequest): Promise<{
 
   const headers = new Headers(request.headers);
   headers.delete("x-forwarded-host");
-  headers.set("Host", "ai-sdk-examples-next-fastapi.vercel.dev");
+  headers.set("Host", "ai-sdk-preview-python-streaming.vercel.app");
 
   const headersArray = [...headers.entries()].map(([key, value]) => ({
     key,
@@ -147,7 +147,7 @@ function addKasadaCORSHeaders(response: Response): void {
 
 export async function kasadaHandler(
   request: NextRequest,
-  ev: NextFetchEvent
+  ev: NextFetchEvent,
 ): Promise<Response> {
   // If the request is an OPTIONS request we don't send it to Kasada
   // but we do add the necessary CORS headers.
@@ -182,7 +182,7 @@ export async function kasadaHandler(
         classification: metadata.classification,
         mode: metadata.application.mode,
         ip: request.ip || "unknown",
-      })
+      }),
     );
     const blockResponse = new Response(undefined, {
       status: 429,
@@ -202,7 +202,7 @@ export async function kasadaHandler(
           ip: request.ip || "unknown",
           model: body.model || "unknown",
           prompt: body.messages?.[0]?.content || "unknown",
-        })
+        }),
       );
     } catch (e) {
       console.error("Error tracking good bot", e);
