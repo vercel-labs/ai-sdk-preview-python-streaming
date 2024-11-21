@@ -24,21 +24,28 @@ export const Overview = () => {
           This is an{" "}
           <Link
             className="font-medium underline underline-offset-4"
-            href="https://github.com/vercel/ai-chatbot"
+            href="https://github.com/vercel-labs/ai-sdk-preview-python-streaming"
             target="_blank"
           >
             open source
           </Link>{" "}
-          chatbot template built with Next.js and the AI SDK by Vercel. It uses
-          a Python based backend (FastAPI) to stream completions from the server
-          following the{" "}
+          template that demonstrates the usage of{" "}
           <Link
             className="font-medium underline underline-offset-4"
-            href="https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol#stream-protocols"
+            href="https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol#data-stream-protocol"
+            target="_blank"
           >
-            Stream Protocol
+            Data Stream Protocol
           </Link>{" "}
-          format and the{" "}
+          to stream chat completions from a Python function (
+          <Link
+            className="font-medium underline underline-offset-4"
+            href="https://fastapi.tiangolo.com"
+            target="_blank"
+          >
+            FastAPI
+          </Link>
+          ) along with the
           <code className="rounded-md bg-muted px-1 py-0.5">useChat</code> hook
           on the client to create a seamless chat experience.
         </p>
