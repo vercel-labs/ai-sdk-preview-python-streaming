@@ -4,11 +4,7 @@ This template demonstrates the usage of [Data Stream Protocol](https://sdk.verce
 
 ## Deploy your own
 
-<<<<<<< HEAD
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-preview-python-streaming&env=OPENAI_API_KEY&envDescription=API%20keys%20needed%20for%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-preview-python-streaming%2Fblob%2Fmain%2F.env.example)
-=======
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-preview-python-streaming&env=OPENAI_API_KEY,VERCEL_FORCE_PYTHON_STREAMING&envDescription=API%20keys%20needed%20for%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-preview-python-streaming%2Fblob%2Fmain%2F.env.example)
->>>>>>> main
 
 ## How to use
 
@@ -31,16 +27,11 @@ To run the example locally you need to:
 1. Sign up for accounts with the AI providers you want to use (e.g., OpenAI, Anthropic).
 2. Obtain API keys for each provider.
 3. Set the required environment variables as shown in the `.env.example` file, but in a new file called `.env`.
-<<<<<<< HEAD
-4. `npm install` to install the required dependencies.
-5. `npm run dev` to launch the development server.
-=======
 4. `pnpm install` to install the required Node dependencies.
 5. `virtualenv venv` to create a virtual environment.
 6. `source venv/bin/activate` to activate the virtual environment.
 7. `pip install -r requirements.txt` to install the required Python dependencies.
 8. `pnpm dev` to launch the development server.
->>>>>>> main
 
 ## Learn More
 
