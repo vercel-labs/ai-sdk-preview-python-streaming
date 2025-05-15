@@ -43,6 +43,9 @@ export function MultimodalInput({
   append,
   handleSubmit,
   className,
+  startListening,
+  stopListening,
+  isRecording,
 }: {
   chatId: string;
   input: string;
@@ -53,14 +56,17 @@ export function MultimodalInput({
   setMessages: Dispatch<SetStateAction<Array<Message>>>;
   append: (
     message: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>;
   handleSubmit: (
     event?: {
       preventDefault?: () => void;
     },
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => void;
+  startListening: () => void;
+  stopListening: () => void;
+  isRecording: boolean;
   className?: string;
 }) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -81,19 +87,16 @@ export function MultimodalInput({
 
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     "input",
-    "",
+    ""
   );
 
   useEffect(() => {
     if (textareaRef.current) {
       const domValue = textareaRef.current.value;
-      // Prefer DOM value over localStorage to handle hydration
       const finalValue = domValue || localStorageInput || "";
       setInput(finalValue);
       adjustHeight();
     }
-    // Only run once after hydration
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -106,13 +109,19 @@ export function MultimodalInput({
   };
 
   const submitForm = useCallback(() => {
-    handleSubmit(undefined, {});
+    if (isLoading) {
+      toast.error("Please wait for the model to finish its response!");
+      return;
+    }
+    if (!input.trim()) return;
+
+    handleSubmit();
     setLocalStorageInput("");
 
     if (width && width > 768) {
       textareaRef.current?.focus();
     }
-  }, [handleSubmit, setLocalStorageInput, width]);
+  }, [handleSubmit, setLocalStorageInput, width, input, isLoading]);
 
   return (
     <div className="relative w-full flex flex-col gap-4">
@@ -130,7 +139,7 @@ export function MultimodalInput({
               <Button
                 variant="ghost"
                 onClick={async () => {
-                  append({
+                  await append({
                     role: "user",
                     content: suggestedAction.action,
                   });
@@ -154,23 +163,31 @@ export function MultimodalInput({
         onChange={handleInput}
         className={cn(
           "min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted",
-          className,
+          className
         )}
         rows={3}
         autoFocus
         onKeyDown={(event) => {
           if (event.key === "Enter" && !event.shiftKey) {
             event.preventDefault();
-
-            if (isLoading) {
-              toast.error("Please wait for the model to finish its response!");
-            } else {
-              submitForm();
-            }
+            submitForm();
           }
         }}
       />
 
+      {/* 🎤 Push-to-Talk Button */}
+      <Button
+        className={cn(
+          "rounded-full p-1.5 h-fit absolute bottom-2 right-12 m-0.5 border dark:border-zinc-600",
+          isRecording && "bg-red-500 hover:bg-red-600"
+        )}
+        onClick={startListening}
+        type="button"
+      >
+        🎤
+      </Button>
+
+      {/* 🚀 Send or ⛔ Stop Button */}
       {isLoading ? (
         <Button
           className="rounded-full p-1.5 h-fit absolute bottom-2 right-2 m-0.5 border dark:border-zinc-600"
