@@ -244,7 +244,7 @@ export function useADKWebSocket({
           callbacksRef.current.onTextMessage(interimTranscript, false);
         }
         
-        // When we have a final result, store it but don't send yet
+        // When we have a final result, just store it
         if (finalTranscript) {
           const finalText = finalTranscript.trim();
           if (finalText) {
@@ -263,13 +263,7 @@ export function useADKWebSocket({
       };
 
       recognition.onend = () => {
-        // When recognition ends, send the final transcript to the assistant
-        if (interimMessageRef.current) {
-          sendUserMessage(interimMessageRef.current);
-          interimMessageRef.current = "";
-        }
-        
-        // Restart recognition if it ends unexpectedly
+        // Only restart recognition if we're still recording
         if (isRecording) {
           recognition.start();
         }
@@ -324,10 +318,16 @@ export function useADKWebSocket({
   }, [isRecording, connect, sendUserMessage]);
 
   const stopListening = useCallback(() => {
+    // Set isRecording to false first to prevent any new messages from being sent
+    setIsRecording(false);
+
+    // Stop speech recognition
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       recognitionRef.current = null;
     }
+
+    // Stop audio processing
     if (processorRef.current) {
       processorRef.current.disconnect();
       processorRef.current = null;
@@ -344,13 +344,33 @@ export function useADKWebSocket({
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
     }
-    setIsRecording(false);
-    // Close WebSocket connection when stopping recording
+
+    // Send final transcript if we have one
+    if (interimMessageRef.current) {
+      const finalText = interimMessageRef.current;
+      interimMessageRef.current = "";
+      
+      // Ensure we have a connection before sending
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        sendUserMessage(finalText);
+      } else {
+        console.error("WebSocket not connected when trying to send final transcription");
+        // Try to reconnect and send
+        connect();
+        setTimeout(() => {
+          if (ws.current?.readyState === WebSocket.OPEN) {
+            sendUserMessage(finalText);
+          }
+        }, 1000);
+      }
+    }
+
+    // Close WebSocket connection
     if (ws.current) {
       ws.current.close();
     }
     console.log("[Audio] Stopped recording");
-  }, []);
+  }, [connect, sendUserMessage]);
 
   // Clean up on unmount
   useEffect(() => {
