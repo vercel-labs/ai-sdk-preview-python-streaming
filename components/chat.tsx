@@ -21,11 +21,12 @@ export function Chat() {
     isLoading,
     stop,
   } = useChat({
+    api: "/api/chat/gemini",
     maxSteps: 4,
     onError: (error) => {
       if (error.message.includes("Too many requests")) {
         toast.error(
-          "You are sending too many messages. Please try again later.",
+          "You are sending too many messages. Please try again later."
         );
       }
     },
