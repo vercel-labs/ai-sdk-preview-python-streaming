@@ -12,7 +12,8 @@ from openai.types.chat.chat_completion_message_param import \
 from pydantic import BaseModel
 
 from .utils.prompt import ClientMessage, convert_to_openai_messages
-from .utils.tools import get_current_weather
+from .utils.schemas import TOOL_DEFINITIONS, get_tool_definitions
+from .utils.tools import WEATHER_TOOL, get_current_weather
 
 # Add logging configuration at the top of the file
 logging.basicConfig(level=logging.INFO)
@@ -32,9 +33,15 @@ class Request(BaseModel):
     messages: List[ClientMessage]
 
 
+# Simply map function names to implementations
 available_tools = {
-    "get_current_weather": get_current_weather,
+    WEATHER_TOOL: get_current_weather,
 }
+
+# Optional runtime validation
+for tool_name in available_tools:
+    if tool_name not in TOOL_DEFINITIONS:
+        raise ValueError(f"Tool '{tool_name}' has implementation but no schema definition")
 
 def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'data'):
     draft_tool_calls = []
@@ -86,27 +93,7 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
             messages=api_messages,
             model=MODEL,
             stream=True,
-            tools=[{
-                "type": "function",
-                "function": {
-                    "name": "get_current_weather",
-                    "description": "Get the current weather at a location",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "latitude": {
-                                "type": "number",
-                                "description": "The latitude of the location",
-                            },
-                            "longitude": {
-                                "type": "number",
-                                "description": "The longitude of the location",
-                            },
-                        },
-                        "required": ["latitude", "longitude"],
-                    },
-                },
-            }]
+            tools=get_tool_definitions()
         )
         
         for chunk in stream:
