@@ -1,5 +1,5 @@
-import { Chat } from "@/components/chat";
+import Autocomplete from "@/components/autocomplete";
 
 export default function Page() {
-  return <Chat />;
+  return <Autocomplete />;
 }
