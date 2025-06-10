@@ -6,17 +6,17 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query
 from fastapi.responses import StreamingResponse
-from openai import OpenAI
-from .utils.prompt import ClientMessage, convert_to_openai_messages
+# verificar essas dependências e att o arquivo
+from .services.llm_client import GeminiLLMClient
+from .utils.prompt import ClientMessage, convert_to_gemini_messages
 from .utils.tools import get_current_weather
-
 
 load_dotenv(".env.local")
 
 app = FastAPI()
 
 client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
+    api_key=os.environ.get("GEMINI_API_KEY"),
 )
 
 

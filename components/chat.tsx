@@ -21,6 +21,9 @@ export function Chat() {
     isLoading,
     stop,
   } = useChat({
+    // adicionando conexão com backend
+    api: 'http://127.0.0.1:8000/api/chat_test_connection_front',
+
     maxSteps: 4,
     onError: (error) => {
       if (error.message.includes("Too many requests")) {
