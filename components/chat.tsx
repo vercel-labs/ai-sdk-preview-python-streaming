@@ -4,38 +4,51 @@ import { PreviewMessage, ThinkingMessage } from "@/components/message";
 import { MultimodalInput } from "@/components/multimodal-input";
 import { Overview } from "@/components/overview";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
-import { ToolInvocation } from "ai";
-import { useChat } from "ai/react";
+import React, { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 export function Chat() {
   const chatId = "001";
+  const [messages, setMessages] = useState<any[]>([]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [messagesContainerRef, messagesEndRef] = useScrollToBottom<HTMLDivElement>();
 
-  const {
-    messages,
-    setMessages,
-    handleSubmit,
-    input,
-    setInput,
-    append,
-    isLoading,
-    stop,
-  } = useChat({
-    // adicionando conexão com backend
-    api: 'http://127.0.0.1:8000/api/chat',
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    const userMessage = { id: Date.now(), role: "user", content: input };
+    setMessages((prev) => [...prev, userMessage]);
+    setIsLoading(true);
+    setInput("");
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage.content }),
+      });
+      if (!res.ok) throw new Error("Failed to send message");
+      const data = await res.json();
+      const botMessage = {
+        id: Date.now() + 1,
+        role: "assistant",
+        content: data.response,
+      };
+      setMessages((prev) => [...prev, botMessage]);
+    } catch (error: any) {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 2, role: "assistant", content: "Erro ao enviar mensagem." },
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    maxSteps: 4,
-    onError: (error) => {
-      if (error.message.includes("Too many requests")) {
-        toast.error(
-          "You are sending too many messages. Please try again later.",
-        );
-      }
-    },
-  });
-
-  const [messagesContainerRef, messagesEndRef] =
-    useScrollToBottom<HTMLDivElement>();
+  // Scroll to bottom on new message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   return (
     <div className="flex flex-col min-w-0 h-[calc(100dvh-52px)] bg-background">
@@ -64,17 +77,27 @@ export function Chat() {
         />
       </div>
 
-      <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl">
+      <form className="flex mx-auto px-4 bg-background pb-4 md:pb-6 gap-2 w-full md:max-w-3xl" onSubmit={handleSubmit}>
         <MultimodalInput
           chatId={chatId}
           input={input}
           setInput={setInput}
-          handleSubmit={handleSubmit}
+          handleSubmit={(
+            event?: { preventDefault?: (() => void) | undefined },
+            chatRequestOptions?: any
+          ) => {
+            if (event && event.preventDefault) event.preventDefault();
+            // Optionally, you can adapt handleSubmit to accept these params if needed
+            handleSubmit({ preventDefault: () => {} } as React.FormEvent<HTMLFormElement>);
+          }}
           isLoading={isLoading}
-          stop={stop}
+          stop={() => {}}
           messages={messages}
           setMessages={setMessages}
-          append={append}
+          append={async (msg: any, _chatRequestOptions?: any) => {
+            setMessages((prev) => [...prev, msg]);
+            return null;
+          }}
         />
       </form>
     </div>

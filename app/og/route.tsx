@@ -31,7 +31,6 @@ export async function GET(request: Request) {
           <div
             tw="text-zinc-50 tracking-tight flex-grow-1 flex flex-col justify-center leading-[1.1]"
             style={{
-              textWrap: "balance",
               fontWeight: 500,
               fontSize: 80,
               color: "black",
