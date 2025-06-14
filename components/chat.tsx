@@ -22,7 +22,7 @@ export function Chat() {
     stop,
   } = useChat({
     // adicionando conexão com backend
-    api: 'http://127.0.0.1:8000/api/chat_test_connection_front',
+    api: 'http://127.0.0.1:8000/api/chat',
 
     maxSteps: 4,
     onError: (error) => {
