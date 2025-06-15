@@ -18,6 +18,7 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 mdurl==0.1.2
 openai==1.37.1
+google-genai==1.19.0
 pydantic==2.8.2
 pydantic_core==2.20.1
 Pygments==2.18.0
