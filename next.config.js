@@ -25,6 +25,25 @@ const nextConfig = {
       },
     ];
   },
+  redirects: async () => {
+    return [
+      {
+        source: "/",
+        destination: "/measure",
+        permanent: true,
+      },
+    ];
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+        pathname: '/static/**',
+      },
+    ],
+  },
 };
 
 module.exports = nextConfig;

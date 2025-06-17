@@ -1,0 +1,485 @@
+# Comprehensive Development Rules and Best Practices
+
+## Table of Contents
+- [Core Principles](#core-principles)
+- [Vite Development Rules](#vite-development-rules)
+- [Next.js Development Rules](#nextjs-development-rules)
+- [Remix Development Rules](#remix-development-rules)
+- [Express.js Development Rules](#expressjs-development-rules)
+- [UI/UX Design Principles](#uiux-design-principles)
+
+## Core Principles
+
+- Write concise, maintainable, and technically accurate code
+- Follow DRY principles (Don't Repeat Yourself)
+- Prioritize readability over performance optimizations (unless specifically addressing performance issues)
+- Fully implement requested functionality without TODOs or placeholder code
+- Be thorough in verifying and testing your code
+- Focus on accessibility and responsive design across all frameworks
+
+## Vite Development Rules
+
+### Technology Stack
+- TypeScript for all code
+- Vue.js with Composition API (script setup style)
+- Vite for build tooling
+- Tailwind CSS for styling
+- Pinia for state management
+- Vue Router for routing
+- VueUse for utility functions
+- Headless UI and Element Plus for component libraries
+
+### Code Style and Structure
+
+#### File Organization
+- Organize files systematically: each file should contain only related content
+- Group by exported components, subcomponents, helpers, static content, and types
+- Use lowercase with dashes for directories (e.g., `components/auth-wizard`)
+
+#### Naming Conventions
+- Use descriptive variable and function names
+- Prefix event handler functions with "handle" (e.g., `handleClick`, `handleKeyDown`)
+- Use auxiliary verbs for boolean variables (e.g., `isLoading`, `hasError`)
+
+#### TypeScript Usage
+- Prefer interfaces over types for their extendability and ability to merge
+- Avoid enums; use maps instead for better type safety and flexibility
+- Define proper types and interfaces for all components and functions
+
+#### Component Structure
+- Use functional components with TypeScript interfaces
+- Favor named exports for functions and components
+- Use the "function" keyword for pure functions to benefit from hoisting and clarity
+
+#### Syntax and Formatting
+- Always use Vue Composition API script setup style
+- Use early returns whenever possible to improve readability
+- Prefer const arrow functions over traditional function declarations when appropriate
+  - Example: `const toggle = () => { ... }` instead of `function toggle() { ... }`
+
+### UI and Styling
+
+#### Tailwind Usage
+- Always use Tailwind classes for styling HTML elements; avoid using raw CSS or style tags
+- Use `class:` directive instead of ternary operators in class attributes when possible
+  - Example: `class:hidden={!isVisible}` instead of `class={isVisible ? '' : 'hidden'}`
+- Implement responsive design with a mobile-first approach
+
+#### Accessibility
+- Implement proper accessibility features on all interactive elements
+- Example for clickable elements:
+  - Add `tabindex="0"`
+  - Include appropriate `aria-*` attributes
+  - Handle both `onClick` and `onKeyDown` events
+
+### Performance Optimization
+
+#### Code Optimization
+- Leverage VueUse functions where applicable to enhance reactivity and performance
+- Use dynamic imports for non-critical components:
+  ```typescript
+  const LazyComponent = defineAsyncComponent(() => import('./LazyComponent.vue'))
+  ```
+- Wrap asynchronous components in Suspense with fallback UI
+
+#### Build Optimization
+- Implement an optimized chunking strategy during the Vite build process
+- Utilize code splitting to generate smaller bundle sizes
+- Use tree-shaking effectively by avoiding side effects
+
+#### Asset Handling
+- Optimize images: use WebP format where possible
+- Include width and height attributes to prevent layout shifts
+- Implement lazy loading for below-the-fold images
+
+#### Performance Monitoring
+- Optimize Web Vitals (LCP, CLS, FID) using tools like Lighthouse or WebPageTest
+- Set up performance budgets and monitor them regularly
+
+### Programming Paradigms
+- Use functional and declarative programming patterns
+- Avoid classes in favor of composition
+- Favor iteration and modularization
+- Use pure functions where possible
+
+### Error Handling
+- Implement proper error boundaries
+- Use try/catch for async operations
+- Provide meaningful error messages and fallback UIs
+
+### State Management
+- Use Pinia for global state management
+- Keep component state local when possible
+- Use reactive() and ref() appropriately based on the data structure
+
+### Documentation
+- Document complex logic and non-obvious solutions
+- Include JSDoc comments for functions and interfaces
+- Maintain clear README files for projects and major components
+
+## Next.js Development Rules
+
+### Technology Stack
+- React for UI components
+- Next.js for server-side rendering and static site generation
+- TypeScript for type safety
+- TailwindCSS for styling
+- Shadcn UI and Radix for component libraries
+
+### Code Style and Structure
+
+#### File Organization
+- Follow Next.js conventions for pages and API routes
+- Use the App Router structure for newer projects
+- Organize components by feature or page
+- Create shared components in a common directory
+
+#### Naming Conventions
+- Use PascalCase for React components
+- Use camelCase for variables and functions
+- Prefix event handler functions with "handle" (e.g., `handleClick`)
+- Use kebab-case for file names in public directories
+
+#### TypeScript Usage
+- Utilize TypeScript for all files
+- Define interfaces for props and state
+- Use generics for reusable components and hooks
+- Leverage TypeScript's utility types when appropriate
+
+#### Component Structure
+- Use functional components with TypeScript interfaces for props
+- Implement custom hooks for shared logic
+- Separate business logic from UI components
+- Use Server Components and Client Components appropriately
+
+#### Syntax and Formatting
+- Use early returns to reduce nesting and improve readability
+- Use const arrow functions for event handlers and callbacks
+- Use destructuring for props and state
+- Keep components focused on a single responsibility
+
+### UI and Styling
+
+#### Tailwind Usage
+- Use Tailwind classes exclusively for styling
+- Avoid inline styles and CSS modules unless absolutely necessary
+- Use `className` conditionally with template literals or libraries like `clsx`
+- Create reusable utility classes for common patterns
+
+#### Accessibility
+- Implement proper semantic HTML elements
+- Add appropriate ARIA attributes to interactive elements
+- Ensure keyboard navigability for all interactive elements
+- Test with screen readers and other assistive technologies
+
+### Performance Optimization
+
+#### Code Optimization
+- Utilize Next.js Image component for optimized images
+- Implement code splitting with dynamic imports
+- Use React Suspense for loading states
+- Optimize component rendering with useMemo and useCallback where appropriate
+
+#### Build Optimization
+- Use static generation where possible
+- Implement Incremental Static Regeneration for frequently updated pages
+- Optimize fonts and third-party scripts
+- Configure proper caching strategies
+
+#### Asset Handling
+- Use Next.js Image component for responsive images
+- Implement proper loading strategies for media content
+- Minimize JS and CSS bundle sizes
+
+### Routing and Data Fetching
+- Use file-system based routing
+- Implement shallow routing where appropriate
+- Use SWR or React Query for client-side data fetching
+- Optimize API routes for performance
+
+### Error Handling
+- Implement error boundaries for client components
+- Create custom error pages
+- Handle fetch errors gracefully
+- Provide user-friendly error messages
+
+### State Management
+- Use React Context for simple global state
+- Consider Redux, Zustand, or Jotai for complex state management
+- Keep state as local as possible
+- Use SWR or React Query for server state
+
+### Testing
+- Write unit tests with Jest and React Testing Library
+- Implement integration tests for critical user flows
+- Use Cypress or Playwright for end-to-end testing
+- Test accessibility with specialized tools
+
+## Remix Development Rules
+
+### Key Principles
+- Apply immutability and pure functions where applicable
+- Favor route modules and nested layouts for composition and modularity
+- Use meaningful variable names (e.g., `isAuthenticated`, `userRole`)
+- Always use kebab-case for file names (e.g., `user-profile.tsx`)
+- Prefer named exports for loaders, actions, and components
+
+### Technology Stack
+- Remix for full-stack React framework
+- Supabase for backend and authentication
+- TypeScript for type safety
+- TailwindCSS for styling
+
+### TypeScript & Remix
+
+#### Type Safety
+- Define data structures with interfaces for type safety
+- Avoid the `any` type, fully utilize TypeScript's type system
+- Use TypeScript's utility types where appropriate
+- Implement proper type guards for conditional logic
+
+#### File Structure
+- Organize files: imports, loaders/actions, component logic
+- Use template strings for multi-line literals
+- Utilize optional chaining and nullish coalescing
+- Leverage loaders for efficient server-side rendering and data fetching
+- Use `useFetcher` and `useLoaderData` for seamless data management between client and server
+
+#### File Naming Conventions
+- `*.tsx` for React components
+- `*.ts` for utilities, types, and configurations
+- `root.tsx` for the root layout
+- All files use kebab-case
+
+### Code Style
+
+#### Formatting
+- Use single quotes for string literals
+- Indent with 2 spaces
+- Ensure clean code with no trailing whitespace
+- Use `const` for immutable variables
+- Use template strings for string interpolation
+
+#### Import Order
+1. Remix core modules
+2. React and other core libraries
+3. Third-party packages
+4. Application-specific imports
+5. Environment-specific imports
+6. Relative path imports
+
+### Remix-Specific Guidelines
+- Use `<Link>` for navigation, avoiding full page reloads
+- Implement loaders and actions for server-side data loading and mutations
+- Ensure accessibility with semantic HTML and ARIA labels
+- Leverage route-based loading, error boundaries, and catch boundaries
+- Use the `useFetcher` hook for non-blocking data updates
+- Cache and optimize resource loading where applicable to improve performance
+
+### Error Handling and Validation
+- Implement error boundaries for catching unexpected errors
+- Use custom error handling within loaders and actions
+- Validate user input on both client and server using formData or JSON
+
+### Testing
+- Use `@testing-library/react` for component testing
+- Write tests for loaders and actions ensuring data correctness
+- Mock fetch requests and responses where applicable
+
+### Performance Optimization
+- Prefetch routes using `<Link prefetch="intent">` for faster navigation
+- Defer non-essential JavaScript using `<Scripts defer />`
+- Optimize nested layouts to minimize re-rendering
+- Use Remix's built-in caching and data revalidation to optimize performance
+
+### Security
+- Prevent XSS by sanitizing user-generated content
+- Use Remix's CSRF protection for form submissions
+- Handle sensitive data on the server, never expose in client code
+
+## Express.js Development Rules
+
+### Technology Stack
+- Express.js for API and server development
+- TypeScript for type safety
+- MongoDB, PostgreSQL, or MySQL for databases (as appropriate)
+- Jest for testing
+
+### Project Structure
+- Implement a clear, modular folder structure
+- Separate routes, controllers, services, and models
+- Use middleware directory for custom middleware
+- Keep configuration in a dedicated directory
+
+### API Design
+- Follow RESTful principles for endpoint design
+- Use versioning for API endpoints (e.g., `/api/v1/users`)
+- Implement proper HTTP status codes and response formats
+- Document APIs using OpenAPI/Swagger
+
+### Code Style and Structure
+
+#### TypeScript Usage
+- Use TypeScript for type safety
+- Define interfaces for request and response objects
+- Create type definitions for database models
+- Implement proper error types
+
+#### Middleware Implementation
+- Create reusable middleware for common functionality
+- Separate concerns with dedicated middleware functions
+- Use middleware for authentication, logging, error handling
+- Implement custom middleware in modular fashion
+
+#### Error Handling
+- Implement global error handling middleware
+- Create standardized error response format
+- Use proper HTTP status codes
+- Log errors with appropriate severity levels
+
+### Security Best Practices
+- Validate and sanitize all user inputs
+- Implement proper authentication and authorization
+- Use HTTPS in production environments
+- Set secure HTTP headers
+- Implement rate limiting
+- Protect against common vulnerabilities (XSS, CSRF, etc.)
+
+### Performance Optimization
+- Implement proper caching strategies
+- Use compression middleware
+- Optimize database queries
+- Implement proper connection pooling
+- Consider clustering for multi-core systems
+
+### Database Operations
+- Use ORM/ODM for database operations (e.g., Sequelize, Mongoose)
+- Implement database migrations
+- Use transactions for related operations
+- Implement proper indexing strategy
+
+### Logging
+- Implement structured logging
+- Use different log levels appropriately
+- Avoid logging sensitive information
+- Configure logging based on environment
+
+### Testing
+- Write unit tests for controllers and services
+- Implement integration tests for API endpoints
+- Use supertest for HTTP endpoint testing
+- Mock external dependencies for isolated testing
+
+### Environment Configuration
+- Use environment variables for configuration
+- Implement different configs for development, testing, and production
+- Use dotenv for local development
+- Never commit secrets to version control
+
+### Documentation
+- Document API endpoints with OpenAPI/Swagger
+- Add JSDoc comments to functions and classes
+- Create a comprehensive README
+- Include setup and deployment instructions
+
+## UI/UX Design Principles
+
+### Visual Design
+- Establish a clear visual hierarchy to guide user attention
+- Choose a cohesive color palette that reflects the brand
+- Use typography effectively for readability and emphasis
+- Maintain sufficient contrast for legibility (WCAG 2.1 AA standard)
+- Design with a consistent style across the application
+
+### Interaction Design
+- Create intuitive navigation patterns
+- Use familiar UI components to reduce cognitive load
+- Provide clear calls-to-action to guide user behavior
+- Implement responsive design for cross-device compatibility
+- Use animations judiciously to enhance user experience
+
+### Accessibility
+- Follow WCAG guidelines for web accessibility
+- Use semantic HTML to enhance screen reader compatibility
+- Provide alternative text for images and non-text content
+- Ensure keyboard navigability for all interactive elements
+- Test with various assistive technologies
+
+### Performance Optimization
+- Optimize images and assets to minimize load times
+- Implement lazy loading for non-critical resources
+- Use code splitting to improve initial load performance
+- Monitor and optimize Core Web Vitals (LCP, FID, CLS)
+
+### User Feedback
+- Incorporate clear feedback mechanisms for user actions
+- Use loading indicators for asynchronous operations
+- Provide clear error messages and recovery options
+- Implement analytics to track user behavior and pain points
+
+### Information Architecture
+- Organize content logically to facilitate easy access
+- Use clear labeling and categorization for navigation
+- Implement effective search functionality
+- Create a sitemap to visualize overall structure
+
+### Mobile-First Design
+- Design for mobile devices first, then scale up
+- Use touch-friendly interface elements
+- Implement gestures for common actions (swipe, pinch-to-zoom)
+- Consider thumb zones for important interactive elements
+
+### Consistency
+- Develop and adhere to a design system
+- Use consistent terminology throughout the interface
+- Maintain consistent positioning of recurring elements
+- Ensure visual consistency across different sections
+
+### Testing and Iteration
+- Conduct A/B testing for critical design decisions
+- Use heatmaps and session recordings to analyze user behavior
+- Regularly gather and incorporate user feedback
+- Continuously iterate on designs based on data and feedback
+
+### Documentation
+- Maintain a comprehensive style guide
+- Document design patterns and component usage
+- Create user flow diagrams for complex interactions
+- Keep design assets organized and accessible to the team
+
+### Responsive Design Implementation
+
+#### Fluid Layouts
+- Use relative units (%, em, rem) instead of fixed pixels
+- Implement CSS Grid and Flexbox for flexible layouts
+- Design with a mobile-first approach, then scale up
+
+#### Media Queries
+- Use breakpoints to adjust layouts for different screen sizes
+- Focus on content needs rather than specific devices
+- Test designs across a range of devices and orientations
+
+#### Images and Media
+- Use responsive images with srcset and sizes attributes
+- Implement lazy loading for images and videos
+- Use CSS to make embedded media (like iframes) responsive
+
+#### Typography
+- Use relative units (em, rem) for font sizes
+- Adjust line heights and letter spacing for readability on small screens
+- Implement a modular scale for consistent typography across breakpoints
+
+#### Touch Targets
+- Ensure interactive elements are large enough for touch (min 44x44 pixels)
+- Provide adequate spacing between touch targets
+- Consider hover states for desktop and focus states for touch/keyboard
+
+#### Forms
+- Design form layouts that adapt to different screen sizes
+- Use appropriate input types for better mobile experiences
+- Implement inline validation and clear error messaging
+
+#### Navigation
+- Design mobile-friendly navigation patterns (e.g., hamburger menu)
+- Ensure navigation is accessible via keyboard and screen readers
+- Consider using a sticky header for easy navigation access

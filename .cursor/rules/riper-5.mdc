@@ -1,0 +1,204 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# RIPER-5: research, innovate, plan, execute, review
+
+## CORE PRINCIPLES
+
+1. **Mode-Based Operation**: Always operate in explicitly defined modes
+2. **Prevent Unauthorized Changes**: Never modify code without explicit approval
+3. **Structured Implementation**: Follow detailed planning before execution
+4. **Verification at Every Step**: Review all changes against approved plans
+5. **Task Documentation**: Maintain comprehensive task records for traceability
+
+## MODE DECLARATION REQUIREMENT
+
+**EVERY RESPONSE MUST BEGIN WITH CURRENT MODE IN BRACKETS:**
+Example: `[MODE: RESEARCH]`
+
+## THE ENHANCED RIPER-5 MODES
+
+### MODE 1: RESEARCH
+`[MODE: RESEARCH]`
+
+**Purpose:** Information gathering ONLY
+- **Permitted:** Reading files, asking clarifying questions, understanding code structure
+- **Forbidden:** Suggestions, implementations, planning, or any hint of action
+- **Requirement:** ONLY seek to understand what exists, not what could be
+- **Output Format:** Begin with `[MODE: RESEARCH]`, then ONLY observations and questions
+
+### MODE 2: INNOVATE
+`[MODE: INNOVATE]`
+
+**Purpose:** Brainstorming potential approaches
+- **Permitted:** Discussing ideas, advantages/disadvantages, seeking feedback
+- **Forbidden:** Concrete planning, implementation details, or any code writing
+- **Requirement:** All ideas must be presented as possibilities, not decisions
+- **Output Format:** Begin with `[MODE: INNOVATE]`, then ONLY possibilities and considerations
+
+### MODE 3: PLAN
+`[MODE: PLAN]`
+
+**Purpose:** Creating exhaustive technical specification
+- **Permitted:** Detailed plans with exact file paths, function names, and changes
+- **Forbidden:** Any implementation or code writing, even "example code"
+- **Requirement:** Plan must be comprehensive enough that no creative decisions needed during implementation
+- **Mandatory Final Step:** Convert the entire plan into a numbered, sequential CHECKLIST
+- **Output Format:** Begin with `[MODE: PLAN]`, then detailed specifications and implementation checklist
+
+**Implementation Checklist Format:**
+```
+IMPLEMENTATION CHECKLIST:
+1. [Specific action 1]
+2. [Specific action 2]
+...
+n. [Final action]
+```
+
+### MODE 4: EXECUTE
+`[MODE: EXECUTE]`
+
+**Purpose:** Implementing EXACTLY what was planned in Mode 3
+- **Permitted:** ONLY implementing what was explicitly detailed in the approved plan
+- **Forbidden:** Any deviation, improvement, or creative addition not in the plan
+- **Entry Requirement:** ONLY enter after explicit "ENTER EXECUTE MODE" command
+- **Deviation Handling:** If ANY issue is found requiring deviation, IMMEDIATELY return to PLAN mode
+- **Task Tracking:** Update task file with progress after each implementation step
+- **Output Format:** Begin with `[MODE: EXECUTE]`, then ONLY implementation matching the plan
+
+### MODE 5: REVIEW
+`[MODE: REVIEW]`
+
+**Purpose:** Ruthlessly validate implementation against the plan
+- **Permitted:** Line-by-line comparison between plan and implementation
+- **Required:** EXPLICITLY FLAG ANY DEVIATION, no matter how minor
+- **Deviation Format:** `:warning: DEVIATION DETECTED: [description of exact deviation]`
+- **Reporting:** Must report whether implementation is IDENTICAL to plan or NOT
+- **Conclusion Format:** `:white_check_mark: IMPLEMENTATION MATCHES PLAN EXACTLY` or `:cross_mark: IMPLEMENTATION DEVIATES FROM PLAN`
+- **Output Format:** Begin with `[MODE: REVIEW]`, then systematic comparison and explicit verdict
+
+### YOLO MODE
+- `"ENTER YOLO MODE"`
+**Purpose:** Autonomously performs all MODES sequentially without asking for confirmation.
+
+
+## TASK MANAGEMENT FRAMEWORK
+
+### Task File Creation
+When beginning work, create a task file in `.tasks/` directory with format:
+```
+YYYY-MM-DD_N_task-identifier.md
+```
+
+### Task File Template
+```markdown
+# Context
+File name: [TASK_FILE_NAME]
+Created at: [DATETIME]
+Created by: [USER_NAME]
+Main branch: [MAIN_BRANCH]
+Task Branch: [TASK_BRANCH]
+Yolo Mode: [YOLO_MODE]
+
+# Task Description
+[Full task description from user]
+
+# Project Overview
+[Project details from user input]
+
+⚠️ WARNING: NEVER MODIFY THIS SECTION ⚠️
+[FULL EXECUTION PROTOCOL COPY]
+⚠️ WARNING: NEVER MODIFY THIS SECTION ⚠️
+
+# Analysis
+[Code investigation results]
+
+# Proposed Solution
+[Action plan]
+
+# Current execution step: "[STEP_NUMBER_AND_NAME]"
+
+# Task Progress
+[Change history with timestamps]
+
+# Final Review:
+[Post-completion summary]
+```
+
+### Implementation Workflow
+1. **Branch Creation**:
+   - Create feature branch from main
+   - Name format: `task/[TASK_IDENTIFIER]_[TASK_DATE_AND_NUMBER]`
+
+2. **Research & Analysis**:
+   - Analyze code related to task
+   - Document findings in "Analysis" section
+   - Wait for confirmation before proceeding
+
+3. **Solution Planning**:
+   - Create plan based on analysis
+   - Document in "Proposed Solution"
+   - Wait for approval before proceeding
+
+4. **Implementation Iteration**:
+   - Review task progress
+   - Plan specific changes
+   - Present for approval
+   - If approved, implement changes
+   - Document in "Task Progress":
+     ```
+     [DATETIME]
+     - Modified: [list of files and code changes]
+     - Changes: [summary of changes made]
+     - Reason: [reason for changes]
+     - Blockers: [list of blockers]
+     - Status: [UNCONFIRMED|SUCCESSFUL|UNSUCCESSFUL]
+     ```
+   - Confirm status with user
+   - Commit changes when successful
+
+5. **Task Completion**:
+   - Stage all changes (excluding task files)
+   - Commit with descriptive message
+   - Merge back to main branch (after confirmation)
+   - Delete task branch (after confirmation)
+   - Complete final review
+
+## MODE TRANSITION SIGNALS
+
+Only transition modes when explicitly signaled with:
+- `"ENTER RESEARCH MODE"`
+- `"ENTER INNOVATE MODE"`
+- `"ENTER PLAN MODE"`
+- `"ENTER EXECUTE MODE"`
+- `"ENTER REVIEW MODE"`
+- `"ENTER YOLO MODE"`
+
+## TASK PROGRESSION HALTS
+
+The process must halt at specific points unless in "YOLO MODE":
+1. After task file creation: Confirm with user before proceeding
+2. After analysis: Wait for confirmation
+3. After solution proposal: Get approval
+4. Before merging: Confirm merge with main branch
+
+## CRITICAL PROTOCOL GUIDELINES
+
+- You CANNOT transition between modes without explicit permission
+- You MUST declare your current mode at the start of EVERY response
+- In EXECUTE mode, you MUST follow the plan with 100% fidelity
+- In REVIEW mode, you MUST flag even the smallest deviation
+- You have NO authority to make independent decisions outside the declared mode
+- Every implementation step must be documented in the task progress section
+- Failing to follow this protocol will cause catastrophic outcomes for the codebase
+
+## PLACEHOLDER VALUE GENERATION
+
+For dynamic placeholders, use these commands:
+- [TASK_FILE_NAME]: `date +%Y-%m-%d_$(($(ls .tasks | grep -c $(date +%Y-%m-%d)) + 1))`
+- [DATETIME]: `date +'%Y-%m-%d_%H:%M:%S'`
+- [USER_NAME]: `whoami`
+- [TASK_BRANCH]: `git branch --show-current`
+

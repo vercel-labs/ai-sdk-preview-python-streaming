@@ -1,41 +1,68 @@
-# AI SDK Python Streaming Preview
+# Photo Measurement API
 
-This template demonstrates the usage of [Data Stream Protocol](https://sdk.vercel.ai/docs/ai-sdk-ui/stream-protocol#data-stream-protocol) to stream chat completions from a Python endpoint ([FastAPI](https://fastapi.tiangolo.com)) and display them using the [useChat](https://sdk.vercel.ai/docs/ai-sdk-ui/chatbot#chatbot) hook in your Next.js application.
+A FastAPI backend service that analyzes user-submitted photos to extract
+real-world measurements using computer vision and AI models.
 
-## Deploy your own
+## Features
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-preview-python-streaming&env=OPENAI_API_KEY&envDescription=API%20keys%20needed%20for%20application&envLink=https%3A%2F%2Fgithub.com%2Fvercel-labs%2Fai-sdk-preview-python-streaming%2Fblob%2Fmain%2F.env.example)
+- Photo upload and processing
+- Reference object detection
+- Real-world measurement calculation
+- Background task processing
+- SQLite database storage
 
-## How to use
+## API Endpoints
 
-Run [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init), [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/), or [pnpm](https://pnpm.io) to bootstrap the example:
+- `GET /api/v1/health` - Health check endpoint
+- `POST /api/v1/photos` - Upload a new photo
+- `GET /api/v1/photos` - List all photos
+- `GET /api/v1/photos/{photo_id}` - Get photo details
+- `POST /api/v1/photos/{photo_id}/process` - Process a photo
+- `GET /api/v1/photos/{photo_id}/measurements` - Get measurements
+
+## Setup
+
+1. Install dependencies:
 
 ```bash
-npx create-next-app --example https://github.com/vercel-labs/ai-sdk-preview-python-streaming ai-sdk-preview-python-streaming-example
+pip install -r requirements.txt
 ```
+
+2. Run the server:
 
 ```bash
-yarn create next-app --example https://github.com/vercel-labs/ai-sdk-preview-python-streaming ai-sdk-preview-python-streaming-example
+uvicorn api.main:app --reload
 ```
 
-```bash
-pnpm create next-app --example https://github.com/vercel-labs/ai-sdk-preview-python-streaming ai-sdk-preview-python-streaming-example
+3. Access the API documentation:
+
+```
+http://localhost:8000/api/v1/docs
 ```
 
-To run the example locally you need to:
+## Supported Reference Objects
 
-1. Sign up for accounts with the AI providers you want to use (e.g., OpenAI, Anthropic).
-2. Obtain API keys for each provider.
-3. Set the required environment variables as shown in the `.env.example` file, but in a new file called `.env`.
-4. `pnpm install` to install the required Node dependencies.
-5. `virtualenv venv` to create a virtual environment.
-6. `source venv/bin/activate` to activate the virtual environment.
-7. `pip install -r requirements.txt` to install the required Python dependencies.
-8. `pnpm dev` to launch the development server.
+- Credit Card (8.56cm x 5.398cm)
+- Ruler (30cm)
 
-## Learn More
+## File Format Support
 
-To learn more about the AI SDK or Next.js by Vercel, take a look at the following resources:
+Supported image formats:
 
-- [AI SDK Documentation](https://sdk.vercel.ai/docs)
-- [Next.js Documentation](https://nextjs.org/docs)
+- JPG/JPEG
+- PNG
+- BMP
+
+## Development
+
+The project uses:
+
+- FastAPI for the web framework
+- OpenCV for image processing
+- TensorFlow Lite for object detection
+- SQLite for data storage
+- Pydantic for data validation
+
+## License
+
+MIT
