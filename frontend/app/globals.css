@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100 min-h-screen;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+a {
+  @apply text-brand transition-colors duration-150;
+}
+
+a:hover {
+  @apply text-brand-foreground;
+}
+
+button:disabled {
+  @apply opacity-60 cursor-not-allowed;
+}
