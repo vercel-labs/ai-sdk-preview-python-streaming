@@ -2,11 +2,11 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse, HTMLResponse
 import os, json, shutil, re
 from pathlib import Path
+from typing import List
 
 app = FastAPI()
 
 def clean_filename(name: str) -> str:
-    """Clean title for safe filename"""
     return re.sub(r'[^a-zA-Z0-9_-]', '_', name)[:50]
 
 def process_chat(chat_data, output_dir: str):
@@ -33,6 +33,7 @@ def process_chat(chat_data, output_dir: str):
             md_lines.append(text + "\n")
 
     Path(output_dir, filename).write_text("\n".join(md_lines), encoding="utf-8")
+    return filename
 
 @app.get("/", response_class=HTMLResponse)
 async def index():
@@ -40,9 +41,9 @@ async def index():
     <html>
         <head><title>ChatGPT Restructure Tool</title></head>
         <body>
-            <h1>Upload ChatGPT JSON Export</h1>
+            <h1>Upload ChatGPT JSON Export(s)</h1>
             <form action="/upload/" enctype="multipart/form-data" method="post">
-                <input type="file" name="file" />
+                <input type="file" name="files" multiple />
                 <input type="submit" value="Convert & Download" />
             </form>
         </body>
@@ -50,26 +51,36 @@ async def index():
     """
 
 @app.post("/upload/")
-async def upload(file: UploadFile = File(...)):
-    # Vercel: always use /tmp for temp files
+async def upload(files: List[UploadFile] = File(...)):
+    # If only 1 file → return .md directly
+    if len(files) == 1:
+        file = files[0]
+        data = json.load(file.file)
+        chats = data.get("conversations") or [data]
+
+        temp_dir = "/tmp/single"
+        os.makedirs(temp_dir, exist_ok=True)
+
+        filename = None
+        for chat in chats:
+            filename = process_chat(chat, temp_dir)
+
+        file_path = Path(temp_dir) / filename
+        return FileResponse(file_path, filename=filename)
+
+    # If multiple files → return ZIP
     temp_dir = "/tmp/output"
     os.makedirs(temp_dir, exist_ok=True)
 
-    # Parse JSON
-    data = json.load(file.file)
-    chats = data.get("conversations") or [data]
+    for file in files:
+        data = json.load(file.file)
+        chats = data.get("conversations") or [data]
+        for chat in chats:
+            process_chat(chat, temp_dir)
 
-    # Process each chat
-    for chat in chats:
-        process_chat(chat, temp_dir)
-
-    # Create zip
     zip_base = "/tmp/chat_export"
     zip_path = f"{zip_base}.zip"
     shutil.make_archive(zip_base, 'zip', temp_dir)
-
-    # Cleanup temp folder
     shutil.rmtree(temp_dir)
 
-    # Send file
     return FileResponse(zip_path, filename="chat_export.zip")
