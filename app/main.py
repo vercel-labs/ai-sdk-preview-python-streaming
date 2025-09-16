@@ -5,15 +5,17 @@ from pathlib import Path
 
 app = FastAPI()
 
-def clean_filename(name):
+def clean_filename(name: str) -> str:
+    """Clean title for safe filename"""
     return re.sub(r'[^a-zA-Z0-9_-]', '_', name)[:50]
 
-def process_chat(chat_data, output_dir):
+def process_chat(chat_data, output_dir: str):
+    """Convert one chat JSON into Markdown file"""
     title = chat_data.get("title", "Untitled")
     filename = clean_filename(title) + ".md"
     messages = []
 
-    for k, v in chat_data.get("mapping", {}).items():
+    for _, v in chat_data.get("mapping", {}).items():
         msg = v.get("message")
         if msg and msg.get("content") and msg["content"].get("parts"):
             text = "\n".join(msg["content"]["parts"]).strip()
@@ -40,8 +42,8 @@ async def index():
         <body>
             <h1>Upload ChatGPT JSON Export</h1>
             <form action="/upload/" enctype="multipart/form-data" method="post">
-            <input type="file" name="file">
-            <input type="submit" value="Convert & Download">
+                <input type="file" name="file" />
+                <input type="submit" value="Convert & Download" />
             </form>
         </body>
     </html>
@@ -49,16 +51,25 @@ async def index():
 
 @app.post("/upload/")
 async def upload(file: UploadFile = File(...)):
-    temp_dir = "output"
+    # Vercel: always use /tmp for temp files
+    temp_dir = "/tmp/output"
     os.makedirs(temp_dir, exist_ok=True)
 
+    # Parse JSON
     data = json.load(file.file)
     chats = data.get("conversations") or [data]
 
+    # Process each chat
     for chat in chats:
         process_chat(chat, temp_dir)
 
-    shutil.make_archive("chat_export", 'zip', temp_dir)
+    # Create zip
+    zip_base = "/tmp/chat_export"
+    zip_path = f"{zip_base}.zip"
+    shutil.make_archive(zip_base, 'zip', temp_dir)
+
+    # Cleanup temp folder
     shutil.rmtree(temp_dir)
 
-    return FileResponse("chat_export.zip", filename="chat_export.zip")
+    # Send file
+    return FileResponse(zip_path, filename="chat_export.zip")
