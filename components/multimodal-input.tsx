@@ -1,6 +1,12 @@
 "use client";
 
-import type { ChatRequestOptions, CreateMessage, Message } from "ai";
+import type { CreateUIMessage, UIMessage } from "@ai-sdk/react";
+
+type ChatRequestOptions = {
+  headers?: Record<string, string> | Headers;
+  body?: object;
+  data?: any;
+};
 import { motion } from "framer-motion";
 import type React from "react";
 import {
@@ -49,17 +55,17 @@ export function MultimodalInput({
   setInput: (value: string) => void;
   isLoading: boolean;
   stop: () => void;
-  messages: Array<Message>;
-  setMessages: Dispatch<SetStateAction<Array<Message>>>;
+  messages: Array<UIMessage>;
+  setMessages: Dispatch<SetStateAction<Array<UIMessage>>>;
   append: (
-    message: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    message: UIMessage | CreateUIMessage,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>;
   handleSubmit: (
     event?: {
       preventDefault?: () => void;
     },
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => void;
   className?: string;
 }) {
@@ -75,13 +81,15 @@ export function MultimodalInput({
   const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 2}px`;
+      textareaRef.current.style.height = `${
+        textareaRef.current.scrollHeight + 2
+      }px`;
     }
   };
 
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     "input",
-    "",
+    ""
   );
 
   useEffect(() => {
@@ -150,11 +158,11 @@ export function MultimodalInput({
       <Textarea
         ref={textareaRef}
         placeholder="Send a message..."
-        value={input}
+        value={input || ""}
         onChange={handleInput}
         className={cn(
           "min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted",
-          className,
+          className
         )}
         rows={3}
         autoFocus
@@ -189,7 +197,7 @@ export function MultimodalInput({
             event.preventDefault();
             submitForm();
           }}
-          disabled={input.length === 0}
+          disabled={!input || input.length === 0}
         >
           <ArrowUpIcon size={14} />
         </Button>
