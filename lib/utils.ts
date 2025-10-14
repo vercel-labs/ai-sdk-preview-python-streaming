@@ -1,4 +1,4 @@
-import { Message } from "ai";
+import { UIMessage } from "@ai-sdk/react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -6,35 +6,38 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function sanitizeUIMessages(messages: Array<Message>): Array<Message> {
-  const messagesBySanitizedToolInvocations = messages.map((message) => {
+export function sanitizeUIMessages(
+  messages: Array<UIMessage>
+): Array<UIMessage> {
+  const messagesBySanitizedParts = messages.map((message) => {
     if (message.role !== "assistant") return message;
 
-    if (!message.toolInvocations) return message;
+    if (!message.parts) return message;
 
-    const toolResultIds: Array<string> = [];
+    const sanitizedParts = message.parts.filter((part: any) => {
+      if (part.type === "text") return true;
 
-    for (const toolInvocation of message.toolInvocations) {
-      if (toolInvocation.state === "result") {
-        toolResultIds.push(toolInvocation.toolCallId);
+      if (part.type?.startsWith("tool-")) {
+        return part.state === "output-available";
       }
-    }
 
-    const sanitizedToolInvocations = message.toolInvocations.filter(
-      (toolInvocation) =>
-        toolInvocation.state === "result" ||
-        toolResultIds.includes(toolInvocation.toolCallId),
-    );
+      return true;
+    });
 
     return {
       ...message,
-      toolInvocations: sanitizedToolInvocations,
+      parts: sanitizedParts,
     };
   });
 
-  return messagesBySanitizedToolInvocations.filter(
-    (message) =>
-      message.content.length > 0 ||
-      (message.toolInvocations && message.toolInvocations.length > 0),
-  );
+  return messagesBySanitizedParts.filter((message) => {
+    if (!message.parts || message.parts.length === 0) return false;
+
+    return message.parts.some((part: any) => {
+      if (part.type === "text" && part.text?.length > 0) return true;
+      if (part.type?.startsWith("tool-") && part.state === "output-available")
+        return true;
+      return false;
+    });
+  });
 }

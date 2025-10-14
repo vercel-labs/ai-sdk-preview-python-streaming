@@ -30,13 +30,10 @@ available_tools = {
 }
 
 async def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'data'):
-    # v5 data stream protocol: https://ai-sdk.dev/docs/ai-sdk-ui/stream-protocol#data-stream-protocol
     message_id = f"msg_{uuid.uuid4().hex}"
     
-    # Start message
     yield f'data: {json.dumps({"type": "start", "messageId": message_id})}\n\n'
 
-    # Tool calling loop - continue until we get a final response
     conversation_messages = list(messages)
     
     while True:
@@ -76,7 +73,6 @@ async def stream_text(messages: List[ChatCompletionMessageParam], protocol: str 
         
         async for chunk in stream:
             for choice in chunk.choices:
-                # Handle tool calls streaming
                 if choice.delta.tool_calls:
                     for tool_call in choice.delta.tool_calls:
                         id = tool_call.id
@@ -94,7 +90,6 @@ async def stream_text(messages: List[ChatCompletionMessageParam], protocol: str 
                             draft_tool_calls[draft_tool_calls_index]["arguments"] += arguments
                             yield f'data: {json.dumps({"type": "tool-input-delta", "toolCallId": draft_tool_calls[draft_tool_calls_index]["id"], "inputTextDelta": arguments})}\n\n'
                 
-                # Handle text content streaming
                 if choice.delta.content:
                     if not text_started:
                         yield f'data: {json.dumps({"type": "text-start", "id": text_id})}\n\n'
@@ -102,18 +97,14 @@ async def stream_text(messages: List[ChatCompletionMessageParam], protocol: str 
                     
                     yield f'data: {json.dumps({"type": "text-delta", "id": text_id, "delta": choice.delta.content})}\n\n'
                 
-                # Capture finish reason
                 if choice.finish_reason:
                     finish_reason = choice.finish_reason
 
-        # End text block if started
         if text_started:
             yield f'data: {json.dumps({"type": "text-end", "id": text_id})}\n\n'
             text_started = False
 
-        # Handle finish reasons
         if finish_reason == "tool_calls":
-            # Build tool call objects for the assistant message
             tool_calls_for_message = [
                 {
                     "id": tc["id"],
@@ -126,13 +117,11 @@ async def stream_text(messages: List[ChatCompletionMessageParam], protocol: str 
                 for tc in draft_tool_calls
             ]
             
-            # Add assistant message with tool calls
             conversation_messages.append({
                 "role": "assistant",
                 "tool_calls": tool_calls_for_message
             })
             
-            # Execute tools and emit events
             for tool_call in draft_tool_calls:
                 parsed_args = json.loads(tool_call["arguments"])
                 
@@ -142,7 +131,6 @@ async def stream_text(messages: List[ChatCompletionMessageParam], protocol: str 
 
                 yield f'data: {json.dumps({"type": "tool-output-available", "toolCallId": tool_call["id"], "output": tool_result})}\n\n'
                 
-                # Add tool result to conversation
                 conversation_messages.append({
                     "role": "tool",
                     "tool_call_id": tool_call["id"],
@@ -150,15 +138,11 @@ async def stream_text(messages: List[ChatCompletionMessageParam], protocol: str 
                 })
             
             yield f'data: {json.dumps({"type": "finish-step"})}\n\n'
-            
-            # Continue the loop to get the final response
             continue
             
         elif finish_reason == "stop":
-            # Conversation is complete
             break
 
-    # Finish message
     yield f'data: {json.dumps({"type": "finish"})}\n\n'
     yield f'data: [DONE]\n\n'
 
