@@ -9,16 +9,12 @@ from fastapi.responses import StreamingResponse
 from openai import OpenAI
 from .utils.prompt import ClientMessage, convert_to_openai_messages
 from .utils.tools import get_current_weather
+from vercel import oidc
 
 
 load_dotenv(".env.local")
 
 app = FastAPI()
-
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
-
 
 class Request(BaseModel):
     messages: List[ClientMessage]
@@ -29,6 +25,10 @@ available_tools = {
 }
 
 def do_stream(messages: List[ChatCompletionMessageParam]):
+    client = OpenAI(
+        api_key=oidc.get_vercel_oidc_token(),
+    )
+
     stream = client.chat.completions.create(
         messages=messages,
         model="gpt-4o",
