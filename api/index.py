@@ -133,5 +133,5 @@ async def handle_chat_data(request: Request, protocol: str = Query('data')):
 
     client = OpenAI(api_key=oidc.get_vercel_oidc_token(), base_url="https://ai-gateway.vercel.sh/v1")
     response = StreamingResponse(stream_text(client, openai_messages, protocol))
-    response.headers['x-vercel-ai-data-stream'] = 'v1'
+    response.headers['x-vercel-ai-ui-message-stream'] = 'v1'
     return response
