@@ -4,28 +4,19 @@ import { PreviewMessage, ThinkingMessage } from "@/components/message";
 import { MultimodalInput } from "@/components/multimodal-input";
 import { Overview } from "@/components/overview";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
-import { ToolInvocation } from "ai";
-import { useChat } from "ai/react";
+import { useChat, type CreateUIMessage, type UIMessage } from "@ai-sdk/react";
 import { toast } from "sonner";
+import React from "react";
 
 export function Chat() {
   const chatId = "001";
 
-  const {
-    messages,
-    setMessages,
-    handleSubmit,
-    input,
-    setInput,
-    append,
-    isLoading,
-    stop,
-  } = useChat({
-    maxSteps: 4,
-    onError: (error) => {
+  const { messages, setMessages, sendMessage, status, stop } = useChat({
+    id: chatId,
+    onError: (error: Error) => {
       if (error.message.includes("Too many requests")) {
         toast.error(
-          "You are sending too many messages. Please try again later.",
+          "You are sending too many messages. Please try again later."
         );
       }
     },
@@ -33,6 +24,18 @@ export function Chat() {
 
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
+
+  const [input, setInput] = React.useState("");
+
+  const isLoading = status === "submitted" || status === "streaming";
+
+  const handleSubmit = (event?: { preventDefault?: () => void }) => {
+    event?.preventDefault?.();
+    if (input.trim()) {
+      sendMessage({ text: input });
+      setInput("");
+    }
+  };
 
   return (
     <div className="flex flex-col min-w-0 h-[calc(100dvh-52px)] bg-background">
@@ -42,7 +45,7 @@ export function Chat() {
       >
         {messages.length === 0 && <Overview />}
 
-        {messages.map((message, index) => (
+        {messages.map((message: UIMessage, index: number) => (
           <PreviewMessage
             key={message.id}
             chatId={chatId}
@@ -71,7 +74,7 @@ export function Chat() {
           stop={stop}
           messages={messages}
           setMessages={setMessages}
-          append={append}
+          sendMessage={sendMessage}
         />
       </form>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import type { Message } from "ai";
+import type { UIMessage } from "@ai-sdk/react";
 import { motion } from "framer-motion";
 
 import { SparklesIcon } from "./icons";
@@ -13,7 +13,7 @@ export const PreviewMessage = ({
   message,
 }: {
   chatId: string;
-  message: Message;
+  message: UIMessage;
   isLoading: boolean;
 }) => {
   return (
@@ -25,7 +25,7 @@ export const PreviewMessage = ({
     >
       <div
         className={cn(
-          "group-data-[role=user]/message:bg-primary group-data-[role=user]/message:text-primary-foreground flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
+          "group-data-[role=user]/message:bg-primary group-data-[role=user]/message:text-primary-foreground flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl"
         )}
       >
         {message.role === "assistant" && (
@@ -35,54 +35,58 @@ export const PreviewMessage = ({
         )}
 
         <div className="flex flex-col gap-2 w-full">
-          {message.content && (
-            <div className="flex flex-col gap-4">
-              <Markdown>{message.content as string}</Markdown>
-            </div>
-          )}
+          {message.parts &&
+            message.parts.map((part: any, index: number) => {
+              if (part.type === "text") {
+                return (
+                  <div key={index} className="flex flex-col gap-4">
+                    <Markdown>{part.text}</Markdown>
+                  </div>
+                );
+              }
+              // Handle tool calls - type is "tool-{toolName}" in AI SDK v5
+              if (part.type?.startsWith("tool-")) {
+                const { toolCallId, state, output } = part;
+                const toolName = part.type.replace("tool-", "");
 
-          {message.toolInvocations && message.toolInvocations.length > 0 && (
-            <div className="flex flex-col gap-4">
-              {message.toolInvocations.map((toolInvocation) => {
-                const { toolName, toolCallId, state } = toolInvocation;
-
-                if (state === "result") {
-                  const { result } = toolInvocation;
-
+                if (state === "output-available" && output) {
                   return (
                     <div key={toolCallId}>
                       {toolName === "get_current_weather" ? (
-                        <Weather weatherAtLocation={result} />
+                        <Weather weatherAtLocation={output} />
                       ) : (
-                        <pre>{JSON.stringify(result, null, 2)}</pre>
+                        <pre>{JSON.stringify(output, null, 2)}</pre>
                       )}
                     </div>
                   );
                 }
+                // Show loading state while tool is executing
+                if (
+                  state === "input-streaming" ||
+                  state === "input-available"
+                ) {
+                  return (
+                    <div
+                      key={toolCallId}
+                      className={cn({
+                        skeleton: ["get_current_weather"].includes(toolName),
+                      })}
+                    >
+                      {toolName === "get_current_weather" ? <Weather /> : null}
+                    </div>
+                  );
+                }
+              }
+              if (part.type === "file") {
                 return (
-                  <div
-                    key={toolCallId}
-                    className={cn({
-                      skeleton: ["get_current_weather"].includes(toolName),
-                    })}
-                  >
-                    {toolName === "get_current_weather" ? <Weather /> : null}
-                  </div>
+                  <PreviewAttachment
+                    key={index}
+                    attachment={part}
+                  />
                 );
-              })}
-            </div>
-          )}
-
-          {message.experimental_attachments && (
-            <div className="flex flex-row gap-2">
-              {message.experimental_attachments.map((attachment) => (
-                <PreviewAttachment
-                  key={attachment.url}
-                  attachment={attachment}
-                />
-              ))}
-            </div>
-          )}
+              }
+              return null;
+            })}
         </div>
       </div>
     </motion.div>
@@ -104,7 +108,7 @@ export const ThinkingMessage = () => {
           "flex gap-4 group-data-[role=user]/message:px-3 w-full group-data-[role=user]/message:w-fit group-data-[role=user]/message:ml-auto group-data-[role=user]/message:max-w-2xl group-data-[role=user]/message:py-2 rounded-xl",
           {
             "group-data-[role=user]/message:bg-muted": true,
-          },
+          }
         )}
       >
         <div className="size-8 flex items-center rounded-full justify-center ring-1 shrink-0 ring-border">
