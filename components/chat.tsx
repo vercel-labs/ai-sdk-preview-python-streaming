@@ -25,7 +25,6 @@ export function Chat() {
   const [messagesContainerRef, messagesEndRef] =
     useScrollToBottom<HTMLDivElement>();
 
-  // V5: Manage input state manually
   const [input, setInput] = React.useState("");
 
   const isLoading = status === "submitted" || status === "streaming";
@@ -36,20 +35,6 @@ export function Chat() {
       sendMessage({ text: input });
       setInput("");
     }
-  };
-
-  const append = async (
-    message: UIMessage | CreateUIMessage<UIMessage>
-  ): Promise<string | null | undefined> => {
-    const textPart = message.parts.find(
-      (part): part is { type: "text"; text: string } => part.type === "text"
-    );
-
-    if (textPart?.text) {
-      await sendMessage({ text: textPart.text });
-    }
-
-    return undefined;
   };
 
   return (
@@ -89,7 +74,7 @@ export function Chat() {
           stop={stop}
           messages={messages}
           setMessages={setMessages}
-          append={append}
+          sendMessage={sendMessage}
         />
       </form>
     </div>
