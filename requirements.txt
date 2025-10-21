@@ -2,6 +2,7 @@ annotated-types==0.7.0
 anyio==4.11.0
 certifi==2025.10.5
 charset-normalizer==3.4.4
+click==8.3.0
 distro==1.9.0
 fastapi==0.119.1
 h11==0.16.0
@@ -20,6 +21,7 @@ tqdm==4.67.1
 typing-inspection==0.4.2
 typing_extensions==4.15.0
 urllib3==2.5.0
+uvicorn==0.38.0
 vercel==0.3.2
 vercel-sandbox==0.0.2
 vercel-sdk==0.0.8
