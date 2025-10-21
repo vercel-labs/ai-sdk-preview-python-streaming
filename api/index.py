@@ -1,4 +1,3 @@
-import os
 import json
 from typing import List
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
@@ -19,46 +18,34 @@ app = FastAPI()
 class Request(BaseModel):
     messages: List[ClientMessage]
 
+TOOL_DEFINITIONS = [{
+    "type": "function",
+    "function": {
+        "name": "get_current_weather",
+        "description": "Get the current weather at a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "latitude": {
+                    "type": "number",
+                    "description": "The latitude of the location",
+                },
+                "longitude": {
+                    "type": "number",
+                    "description": "The longitude of the location",
+                },
+            },
+            "required": ["latitude", "longitude"],
+        },
+    },
+}]
+
 
 available_tools = {
     "get_current_weather": get_current_weather,
 }
 
-def do_stream(messages: List[ChatCompletionMessageParam]):
-    client = OpenAI(
-        api_key=oidc.get_vercel_oidc_token(),
-    )
-
-    stream = client.chat.completions.create(
-        messages=messages,
-        model="gpt-4o",
-        stream=True,
-        tools=[{
-            "type": "function",
-            "function": {
-                "name": "get_current_weather",
-                "description": "Get the current weather at a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "latitude": {
-                            "type": "number",
-                            "description": "The latitude of the location",
-                        },
-                        "longitude": {
-                            "type": "number",
-                            "description": "The longitude of the location",
-                        },
-                    },
-                    "required": ["latitude", "longitude"],
-                },
-            },
-        }]
-    )
-
-    return stream
-
-def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'data'):
+def stream_text(client: OpenAI, messages: List[ChatCompletionMessageParam], protocol: str = 'data'):
     draft_tool_calls = []
     draft_tool_calls_index = -1
 
@@ -66,27 +53,7 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
         messages=messages,
         model="gpt-4o",
         stream=True,
-        tools=[{
-            "type": "function",
-            "function": {
-                "name": "get_current_weather",
-                "description": "Get the current weather at a location",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "latitude": {
-                            "type": "number",
-                            "description": "The latitude of the location",
-                        },
-                        "longitude": {
-                            "type": "number",
-                            "description": "The longitude of the location",
-                        },
-                    },
-                    "required": ["latitude", "longitude"],
-                },
-            },
-        }]
+        tools=TOOL_DEFINITIONS,
     )
 
     for chunk in stream:
@@ -110,6 +77,8 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
                         name=tool_call["name"],
                         args=tool_call["arguments"],
                         result=json.dumps(tool_result))
+                draft_tool_calls = []
+                draft_tool_calls_index = -1
 
             elif choice.delta.tool_calls:
                 for tool_call in choice.delta.tool_calls:
@@ -126,9 +95,10 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
                         draft_tool_calls[draft_tool_calls_index]["arguments"] += arguments
 
             else:
-                yield '0:{text}\n'.format(text=json.dumps(choice.delta.content))
+                if choice.delta.content is not None:
+                    yield '0:{text}\n'.format(text=json.dumps(choice.delta.content))
 
-        if chunk.choices == []:
+        if chunk.choices == [] and chunk.usage is not None:
             usage = chunk.usage
             prompt_tokens = usage.prompt_tokens
             completion_tokens = usage.completion_tokens
@@ -148,6 +118,7 @@ async def handle_chat_data(request: Request, protocol: str = Query('data')):
     messages = request.messages
     openai_messages = convert_to_openai_messages(messages)
 
-    response = StreamingResponse(stream_text(openai_messages, protocol))
+    client = OpenAI(api_key=oidc.get_vercel_oidc_token())
+    response = StreamingResponse(stream_text(client, openai_messages, protocol))
     response.headers['x-vercel-ai-data-stream'] = 'v1'
     return response
