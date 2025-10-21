@@ -4,7 +4,7 @@ import { PreviewMessage, ThinkingMessage } from "@/components/message";
 import { MultimodalInput } from "@/components/multimodal-input";
 import { Overview } from "@/components/overview";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
-import { useChat, type UIMessage } from "@ai-sdk/react";
+import { useChat, type CreateUIMessage, type UIMessage } from "@ai-sdk/react";
 import { toast } from "sonner";
 import React from "react";
 
@@ -38,10 +38,17 @@ export function Chat() {
     }
   };
 
-  const append = async (message: any): Promise<string | null | undefined> => {
-    if (message.content) {
-      sendMessage({ text: message.content });
+  const append = async (
+    message: UIMessage | CreateUIMessage<UIMessage>
+  ): Promise<string | null | undefined> => {
+    const textPart = message.parts.find(
+      (part): part is { type: "text"; text: string } => part.type === "text"
+    );
+
+    if (textPart?.text) {
+      await sendMessage({ text: textPart.text });
     }
+
     return undefined;
   };
 

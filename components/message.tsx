@@ -81,11 +81,7 @@ export const PreviewMessage = ({
                 return (
                   <PreviewAttachment
                     key={index}
-                    attachment={{
-                      url: part.url,
-                      name: "",
-                      contentType: part.mediaType,
-                    }}
+                    attachment={part}
                   />
                 );
               }
