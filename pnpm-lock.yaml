@@ -10,7 +10,7 @@ importers:
     dependencies:
       '@ai-sdk/react':
         specifier: ^2.0.76
-        version: 2.0.101(react@18.2.0)(zod@3.21.4)
+        version: 2.0.101(react@18.2.0)(zod@3.25.76)
       '@radix-ui/react-slot':
         specifier: ^1.1.0
         version: 1.2.4(@types/react@18.2.7)(react@18.2.0)
@@ -31,7 +31,7 @@ importers:
         version: 2.0.0
       ai:
         specifier: ^5.0.76
-        version: 5.0.101(zod@3.21.4)
+        version: 5.0.101(zod@3.25.76)
       autoprefixer:
         specifier: 10.4.14
         version: 10.4.14(postcss@8.4.23)
@@ -98,6 +98,9 @@ importers:
       usehooks-ts:
         specifier: ^3.1.0
         version: 3.1.1(react@18.2.0)
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
 
 packages:
 
@@ -2902,38 +2905,41 @@ packages:
   zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
 
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
+
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
 
 snapshots:
 
-  '@ai-sdk/gateway@2.0.15(zod@3.21.4)':
+  '@ai-sdk/gateway@2.0.15(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@3.21.4)
+      '@ai-sdk/provider-utils': 3.0.17(zod@3.25.76)
       '@vercel/oidc': 3.0.5
-      zod: 3.21.4
+      zod: 3.25.76
 
-  '@ai-sdk/provider-utils@3.0.17(zod@3.21.4)':
+  '@ai-sdk/provider-utils@3.0.17(zod@3.25.76)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@standard-schema/spec': 1.0.0
       eventsource-parser: 3.0.6
-      zod: 3.21.4
+      zod: 3.25.76
 
   '@ai-sdk/provider@2.0.0':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@2.0.101(react@18.2.0)(zod@3.21.4)':
+  '@ai-sdk/react@2.0.101(react@18.2.0)(zod@3.25.76)':
     dependencies:
-      '@ai-sdk/provider-utils': 3.0.17(zod@3.21.4)
-      ai: 5.0.101(zod@3.21.4)
+      '@ai-sdk/provider-utils': 3.0.17(zod@3.25.76)
+      ai: 5.0.101(zod@3.25.76)
       react: 18.2.0
       swr: 2.3.6(react@18.2.0)
       throttleit: 2.1.0
     optionalDependencies:
-      zod: 3.21.4
+      zod: 3.25.76
 
   '@alloc/quick-lru@5.2.0': {}
 
@@ -3452,13 +3458,13 @@ snapshots:
 
   acorn@8.15.0: {}
 
-  ai@5.0.101(zod@3.21.4):
+  ai@5.0.101(zod@3.25.76):
     dependencies:
-      '@ai-sdk/gateway': 2.0.15(zod@3.21.4)
+      '@ai-sdk/gateway': 2.0.15(zod@3.25.76)
       '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.17(zod@3.21.4)
+      '@ai-sdk/provider-utils': 3.0.17(zod@3.25.76)
       '@opentelemetry/api': 1.9.0
-      zod: 3.21.4
+      zod: 3.25.76
 
   ajv@6.12.6:
     dependencies:
@@ -6399,5 +6405,7 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.21.4: {}
+
+  zod@3.25.76: {}
 
   zwitch@2.0.4: {}
