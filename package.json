@@ -33,14 +33,14 @@
     "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-markdown": "^9.0.1",
-    "remark-gfm": "^4.0.0",
     "sonner": "^1.5.0",
+    "streamdown": "^1.6.7",
     "tailwind-merge": "^2.5.4",
     "tailwindcss": "3.4.15",
     "tailwindcss-animate": "^1.0.7",
     "types": "link:next-themes/dist/types",
     "typescript": "5.0.4",
-    "usehooks-ts": "^3.1.0"
+    "usehooks-ts": "^3.1.0",
+    "zod": "^3.23.8"
   }
 }

@@ -2,9 +2,9 @@
 
 import type { UIMessage } from "@ai-sdk/react";
 import { motion } from "framer-motion";
+import { Streamdown } from "streamdown";
 
 import { SparklesIcon } from "./icons";
-import { Markdown } from "./markdown";
 import { PreviewAttachment } from "./preview-attachment";
 import { cn } from "@/lib/utils";
 import { Weather } from "./weather";
@@ -40,7 +40,7 @@ export const PreviewMessage = ({
               if (part.type === "text") {
                 return (
                   <div key={index} className="flex flex-col gap-4">
-                    <Markdown>{part.text}</Markdown>
+                    <Streamdown>{part.text}</Streamdown>
                   </div>
                 );
               }
