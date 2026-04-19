@@ -64,12 +64,10 @@ def convert_to_openai_messages(messages: List[ClientMessage]) -> List[ChatComple
                     }
                 })
 
-        tool_calls_dict = {"tool_calls": tool_calls} if tool_calls else {"tool_calls": None}
-
         openai_messages.append({
             "role": message.role,
             "content": parts,
-            **tool_calls_dict,
+            **({"tool_calls": tool_calls} if tool_calls else {}),
         })
 
         if(message.toolInvocations):
