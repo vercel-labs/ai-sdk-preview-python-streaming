@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import List
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel
@@ -10,6 +11,9 @@ from vercel import oidc
 from vercel.headers import set_headers
 from .utils.prompt import ClientMessage, convert_to_openai_messages
 from .utils.tools import get_current_weather
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 load_dotenv(".env.local")
@@ -31,7 +35,11 @@ available_tools = {
 }
 
 def get_client():
-    return OpenAI(api_key=oidc.get_vercel_oidc_token(), base_url="https://ai-gateway.vercel.sh/v1")
+    token = oidc.get_vercel_oidc_token()
+    logger.info(f"OIDC token obtained: {bool(token)}, length: {len(token) if token else 0}")
+    client = OpenAI(api_key=token, base_url="https://ai-gateway.vercel.sh/v1")
+    logger.info(f"OpenAI client created with base_url: {client.base_url}")
+    return client
 
 def do_stream(messages: List[ChatCompletionMessageParam]):
     stream = get_client().chat.completions.create(
@@ -67,11 +75,16 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
     draft_tool_calls = []
     draft_tool_calls_index = -1
 
-    stream = get_client().chat.completions.create(
-        messages=messages,
-        model="gpt-4o",
-        stream=True,
-        tools=[{
+    logger.info(f"stream_text called with {len(messages)} messages, protocol={protocol}")
+
+    try:
+        client = get_client()
+        logger.info("Creating chat completion stream...")
+        stream = client.chat.completions.create(
+            messages=messages,
+            model="gpt-4o",
+            stream=True,
+            tools=[{
             "type": "function",
             "function": {
                 "name": "get_current_weather",
@@ -92,9 +105,17 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
                 },
             },
         }]
-    )
+        )
+        logger.info("Stream created successfully")
+    except Exception as e:
+        logger.error(f"Failed to create stream: {type(e).__name__}: {e}")
+        raise
 
+    chunk_count = 0
     for chunk in stream:
+        chunk_count += 1
+        if chunk_count <= 3:
+            logger.info(f"Chunk {chunk_count}: choices={len(chunk.choices)}, finish_reason={chunk.choices[0].finish_reason if chunk.choices else 'no-choices'}")
         for choice in chunk.choices:
             if choice.finish_reason == "stop":
                 continue
@@ -150,8 +171,10 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
 
 @app.post("/api/chat")
 async def handle_chat_data(request: Request, protocol: str = Query('data')):
+    logger.info(f"POST /api/chat — {len(request.messages)} messages, protocol={protocol}")
     messages = request.messages
     openai_messages = convert_to_openai_messages(messages)
+    logger.info(f"Converted to {len(openai_messages)} OpenAI messages")
 
     response = StreamingResponse(stream_text(openai_messages, protocol))
     response.headers['x-vercel-ai-data-stream'] = 'v1'
