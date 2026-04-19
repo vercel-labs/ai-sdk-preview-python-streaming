@@ -1,3 +1,5 @@
+const { withBotId } = require("botid/next/config");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   rewrites: async () => {
@@ -27,4 +29,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withBotId(nextConfig);

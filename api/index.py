@@ -1,23 +1,29 @@
-import os
 import json
+import logging
 from typing import List
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request as FastAPIRequest
 from fastapi.responses import StreamingResponse
 from openai import OpenAI
+from vercel import oidc
+from vercel.headers import set_headers
 from .utils.prompt import ClientMessage, convert_to_openai_messages
 from .utils.tools import get_current_weather
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 
 load_dotenv(".env.local")
 
 app = FastAPI()
 
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
+@app.middleware("http")
+async def vercel_headers_middleware(request: FastAPIRequest, call_next):
+    set_headers(dict(request.headers))
+    return await call_next(request)
 
 
 class Request(BaseModel):
@@ -28,8 +34,15 @@ available_tools = {
     "get_current_weather": get_current_weather,
 }
 
+def get_client():
+    token = oidc.get_vercel_oidc_token()
+    logger.info(f"OIDC token obtained: {bool(token)}, length: {len(token) if token else 0}")
+    client = OpenAI(api_key=token, base_url="https://ai-gateway.vercel.sh/v1")
+    logger.info(f"OpenAI client created with base_url: {client.base_url}")
+    return client
+
 def do_stream(messages: List[ChatCompletionMessageParam]):
-    stream = client.chat.completions.create(
+    stream = get_client().chat.completions.create(
         messages=messages,
         model="gpt-4o",
         stream=True,
@@ -62,11 +75,16 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
     draft_tool_calls = []
     draft_tool_calls_index = -1
 
-    stream = client.chat.completions.create(
-        messages=messages,
-        model="gpt-4o",
-        stream=True,
-        tools=[{
+    logger.info(f"stream_text called with {len(messages)} messages, protocol={protocol}")
+
+    try:
+        client = get_client()
+        logger.info("Creating chat completion stream...")
+        stream = client.chat.completions.create(
+            messages=messages,
+            model="gpt-4o",
+            stream=True,
+            tools=[{
             "type": "function",
             "function": {
                 "name": "get_current_weather",
@@ -87,14 +105,27 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
                 },
             },
         }]
-    )
+        )
+        logger.info("Stream created successfully")
+    except Exception as e:
+        logger.error(f"Failed to create stream: {type(e).__name__}: {e}")
+        raise
+
+    chunk_count = 0
+    yield_count = 0
+    finish_reason = "stop"
+    prompt_tokens = 0
+    completion_tokens = 0
 
     for chunk in stream:
+        chunk_count += 1
         for choice in chunk.choices:
             if choice.finish_reason == "stop":
+                finish_reason = "stop"
                 continue
 
             elif choice.finish_reason == "tool_calls":
+                finish_reason = "tool-calls"
                 for tool_call in draft_tool_calls:
                     yield '9:{{"toolCallId":"{id}","toolName":"{name}","args":{args}}}\n'.format(
                         id=tool_call["id"],
@@ -125,28 +156,31 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
                     else:
                         draft_tool_calls[draft_tool_calls_index]["arguments"] += arguments
 
-            else:
+            elif choice.delta.content is not None:
                 yield '0:{text}\n'.format(text=json.dumps(choice.delta.content))
+                yield_count += 1
 
-        if chunk.choices == []:
-            usage = chunk.usage
-            prompt_tokens = usage.prompt_tokens
-            completion_tokens = usage.completion_tokens
+        if chunk.choices == [] and chunk.usage:
+            prompt_tokens = chunk.usage.prompt_tokens
+            completion_tokens = chunk.usage.completion_tokens
 
-            yield 'e:{{"finishReason":"{reason}","usage":{{"promptTokens":{prompt},"completionTokens":{completion}}},"isContinued":false}}\n'.format(
-                reason="tool-calls" if len(
-                    draft_tool_calls) > 0 else "stop",
-                prompt=prompt_tokens,
-                completion=completion_tokens
-            )
+    # Always emit the finish event
+    yield 'e:{{"finishReason":"{reason}","usage":{{"promptTokens":{prompt},"completionTokens":{completion}}},"isContinued":false}}\n'.format(
+        reason=finish_reason,
+        prompt=prompt_tokens,
+        completion=completion_tokens
+    )
+    logger.info(f"Stream done. chunks={chunk_count}, yields={yield_count}, finish={finish_reason}")
 
 
 
 
 @app.post("/api/chat")
 async def handle_chat_data(request: Request, protocol: str = Query('data')):
+    logger.info(f"POST /api/chat — {len(request.messages)} messages, protocol={protocol}")
     messages = request.messages
     openai_messages = convert_to_openai_messages(messages)
+    logger.info(f"Converted to {len(openai_messages)} OpenAI messages")
 
     response = StreamingResponse(stream_text(openai_messages, protocol))
     response.headers['x-vercel-ai-data-stream'] = 'v1'

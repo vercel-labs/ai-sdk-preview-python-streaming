@@ -20,6 +20,7 @@
     "@vercel/kv": "^2.0.0",
     "ai": "^4.0.2",
     "autoprefixer": "10.4.14",
+    "botid": "^1.5.11",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "concurrently": "^8.0.1",
