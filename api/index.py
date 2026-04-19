@@ -1,4 +1,3 @@
-import os
 import json
 from typing import List
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
@@ -7,6 +6,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Query
 from fastapi.responses import StreamingResponse
 from openai import OpenAI
+from vercel import oidc
 from .utils.prompt import ClientMessage, convert_to_openai_messages
 from .utils.tools import get_current_weather
 
@@ -14,10 +14,6 @@ from .utils.tools import get_current_weather
 load_dotenv(".env.local")
 
 app = FastAPI()
-
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
 
 
 class Request(BaseModel):
@@ -28,8 +24,11 @@ available_tools = {
     "get_current_weather": get_current_weather,
 }
 
+def get_client():
+    return OpenAI(api_key=oidc.get_vercel_oidc_token(), base_url="https://ai-gateway.vercel.sh/v1")
+
 def do_stream(messages: List[ChatCompletionMessageParam]):
-    stream = client.chat.completions.create(
+    stream = get_client().chat.completions.create(
         messages=messages,
         model="gpt-4o",
         stream=True,
@@ -62,7 +61,7 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
     draft_tool_calls = []
     draft_tool_calls_index = -1
 
-    stream = client.chat.completions.create(
+    stream = get_client().chat.completions.create(
         messages=messages,
         model="gpt-4o",
         stream=True,
