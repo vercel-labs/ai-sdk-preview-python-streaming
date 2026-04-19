@@ -3,10 +3,11 @@ from typing import List
 from openai.types.chat.chat_completion_message_param import ChatCompletionMessageParam
 from pydantic import BaseModel
 from dotenv import load_dotenv
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, Query, Request as FastAPIRequest
 from fastapi.responses import StreamingResponse
 from openai import OpenAI
 from vercel import oidc
+from vercel.headers import set_headers
 from .utils.prompt import ClientMessage, convert_to_openai_messages
 from .utils.tools import get_current_weather
 
@@ -14,6 +15,11 @@ from .utils.tools import get_current_weather
 load_dotenv(".env.local")
 
 app = FastAPI()
+
+@app.middleware("http")
+async def vercel_headers_middleware(request: FastAPIRequest, call_next):
+    set_headers(dict(request.headers))
+    return await call_next(request)
 
 
 class Request(BaseModel):
