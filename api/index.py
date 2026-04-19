@@ -113,16 +113,19 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
 
     chunk_count = 0
     yield_count = 0
+    finish_reason = "stop"
+    prompt_tokens = 0
+    completion_tokens = 0
+
     for chunk in stream:
         chunk_count += 1
-        if chunk_count <= 5:
-            logger.info(f"Chunk {chunk_count}: choices={len(chunk.choices)}, finish_reason={chunk.choices[0].finish_reason if chunk.choices else 'no-choices'}, delta={chunk.choices[0].delta if chunk.choices else 'N/A'}")
         for choice in chunk.choices:
             if choice.finish_reason == "stop":
-                logger.info(f"Stream finished (stop). Total chunks={chunk_count}, yields={yield_count}")
+                finish_reason = "stop"
                 continue
 
             elif choice.finish_reason == "tool_calls":
+                finish_reason = "tool-calls"
                 for tool_call in draft_tool_calls:
                     yield '9:{{"toolCallId":"{id}","toolName":"{name}","args":{args}}}\n'.format(
                         id=tool_call["id"],
@@ -153,26 +156,21 @@ def stream_text(messages: List[ChatCompletionMessageParam], protocol: str = 'dat
                     else:
                         draft_tool_calls[draft_tool_calls_index]["arguments"] += arguments
 
-            else:
-                payload = '0:{text}\n'.format(text=json.dumps(choice.delta.content))
+            elif choice.delta.content is not None:
+                yield '0:{text}\n'.format(text=json.dumps(choice.delta.content))
                 yield_count += 1
-                if yield_count <= 3:
-                    logger.info(f"Yielding text chunk: {repr(payload[:80])}")
-                yield payload
 
-        if chunk.choices == []:
-            usage = chunk.usage
-            prompt_tokens = usage.prompt_tokens
-            completion_tokens = usage.completion_tokens
+        if chunk.choices == [] and chunk.usage:
+            prompt_tokens = chunk.usage.prompt_tokens
+            completion_tokens = chunk.usage.completion_tokens
 
-            finish_payload = 'e:{{"finishReason":"{reason}","usage":{{"promptTokens":{prompt},"completionTokens":{completion}}},"isContinued":false}}\n'.format(
-                reason="tool-calls" if len(
-                    draft_tool_calls) > 0 else "stop",
-                prompt=prompt_tokens,
-                completion=completion_tokens
-            )
-            logger.info(f"Stream complete. Total chunks={chunk_count}, yields={yield_count}. Finish: {repr(finish_payload[:100])}")
-            yield finish_payload
+    # Always emit the finish event
+    yield 'e:{{"finishReason":"{reason}","usage":{{"promptTokens":{prompt},"completionTokens":{completion}}},"isContinued":false}}\n'.format(
+        reason=finish_reason,
+        prompt=prompt_tokens,
+        completion=completion_tokens
+    )
+    logger.info(f"Stream done. chunks={chunk_count}, yields={yield_count}, finish={finish_reason}")
 
 
 
